@@ -1,0 +1,23 @@
+P = 'C:\Users\DL6\Desktop\lens\data\data\x+5_y+5';
+D = dir(fullfile(P,'*.pgm'));
+C = cell(size(D));
+
+Z = imread(fullfile(P,D(1).name));
+imshow(Z)
+for k = 1:numel(D)
+    A = imread(fullfile(P,D(k).name));
+    V = size(A);
+    C{k} = imcrop(A,[0,0,V(2)/2,V(1)/2]);
+end
+
+
+figure(1)
+
+subplot(3,1,1)
+imshow(C{1})
+
+subplot(3,2,)
+
+
+
+
