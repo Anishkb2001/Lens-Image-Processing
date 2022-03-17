@@ -1,4 +1,4 @@
-P = 'C:\Users\DL6\Desktop\lens\data\data\x+5_y+5';
+P = 'C:\Users\DL6\Desktop\lens\.gitignore\data\data\x-5_y+5';
 D = dir(fullfile(P,'*.pgm'));
 C = cell(size(D));
 
@@ -11,25 +11,78 @@ end
 
 figure(1)
 
+
 subplot(1,3,1)
-imshow(C{1})
+imshow(C{3})
 
 subplot(1,3,2)
-A = imadjust(C{1},[0 1250]);
-imshow(A)
+gr = C{3};
+size = size(gr);
 
-% %%background subtraction
-% bw_grayThresh = im2bw(A, graythresh(A));
-% % attempt with different thresholding
-% bw_adaptThresh = imbinarize(A,'adaptive','Sensitivity',0.65);
+% perform closing using a 5x5 circular structuring element
+sel = strel('disk', 2, 4);
+mcl = imclose(gr, sel);
+% cluster gray levels using kmeans: using 3 clusters
+x = double(mcl(:));
+% figure(2)
+% % for l = 1:10
+% %     subplot(1,10,l)
+% %     idx = kmeans(x, 2);
+% %     cl = reshape(idx, size);
+% %     rgb = label2rgb(cl);
+% %     imshow(rgb)
+% % end
+% idx = kmeans(x, 2,"MaxIter",100);
+opts = statset('Display','final');
+[idx,cent] = kmeans(x,2,'Distance','cityblock',...
+    'Replicates',5,'Options',opts);
+tdx = kmeans(x,2,'Start',cent,'MaxIter',100);
+cl = reshape(tdx, size);
+rgb = label2rgb(cl);
+imshow(medfilt3(rgb))
+
+% figure(2);
+% r(1) = mod(int32(cent(1)),size(1));
+% r(2) = mod(int32(cent(2)),size(1));
+% r(3) = mod(int32(cent(3)),size(1));
+% r(4) = mod(int32(cent(4)),size(1));
+% r(5) = mod(int32(cent(5)),size(1));
 % 
+% col(1) = idivide(int32(cent(1)),size(2));
+% col(2) = idivide(int32(cent(2)),size(2));
+% col(3) = idivide(int32(cent(3)),size(2));
+% col(4) = idivide(int32(cent(4)),size(2));
+% col(5) = idivide(int32(cent(5)),size(2));
 % 
+% voronoi(double(col),double(r));
+
+
+
+
+% figure(2)
+% dtx = dbscan(x,1,5);
+% c2 = reshape(dtx,size);
+% grey_db = im2gray(c2);
+% imshow(grey_db)
+
+
+% plot(x(idx==1,1),x(idx==1,2),'r.','MarkerSize',12)
+% hold on
+% plot(x(idx==2,1),x(idx==2,2),'b.','MarkerSize',12)
+% plot(C(:,1),C(:,2),'kx',...
+%      'MarkerSize',15,'LineWidth',3) 
+% legend('Cluster 1','Cluster 2','Centroids',...
+%        'Location','NW')
+% title 'Cluster Assignments and Centroids'
+% hold off
+
+
+% figure(1)
 % subplot(1,3,3)
-% I_subtracted = A;
-% I_subtracted(~bw_adaptThresh) = 0;
-% I_subtracted(~bw_grayThresh) = 0;
-% imshow(I_subtracted)
-% title('background subtraction')
-
+% numColors = 2;
+% L = imsegkmeans(rgb,numColors,'MaxIterations',100,'Start',C);
+% B = labeloverlay(rgb,L);
+% imshow(im2gray(B))
+% title("Labeled Image RGB")
 
 
